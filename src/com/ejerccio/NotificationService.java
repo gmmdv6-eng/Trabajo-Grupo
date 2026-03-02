@@ -1,30 +1,50 @@
 package com.ejerccio;
 
+import java.util.Arrays;
+
 public class NotificationService {
 
-	private static final String TYPE_PUSH = "push";
-	private static final String TYPE_SMS = "sms";
-	private static final String TYPE_EMAIL = "email";
+    //  Definimos un enum que contiene la lógica de cada tipo
+    private enum NotificationType {
+        EMAIL("email") {
+            @Override
+            public void enviar(String m, String d) {
+                System.out.println("Enviando email a " + d + ": " + m);
+            }
+        },
+        SMS("sms") {
+            @Override
+            public void enviar(String m, String d) {
+                System.out.println("Enviando SMS a " + d + ": " + m);
+            }
+        },
+        PUSH("push") {
+            @Override
+            public void enviar(String m, String d) {
+                System.out.println("Enviando push a " + d + ": " + m);
+            }
+        };
 
-	public void enviarNotificacion(String tipo, String mensaje, String destinatario) {
-        if (tipo.equals(TYPE_EMAIL)) {
-            enviarEmail(mensaje, destinatario);
-        } else if (tipo.equals(TYPE_SMS)) {
-            enviarSMS(mensaje, destinatario);
-        } else if (tipo.equals(TYPE_PUSH)) {
-            enviarPush(mensaje, destinatario);
+        private final String key;
+
+        NotificationType(String key) {
+            this.key = key;
+        }
+
+        // Método abstracto que cada elemento del enum debe implementar
+        public abstract void enviar(String mensaje, String destinatario);
+
+        // Método estático para buscar el enum por su clave de texto
+        public static NotificationType fromString(String tipo) {
+            return Arrays.stream(values())
+                    .filter(t -> t.key.equalsIgnoreCase(tipo))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("Tipo no soportado: " + tipo));
         }
     }
 
-	private void enviarPush(String mensaje, String destinatario) {
-		System.out.println("Enviando push a " + destinatario + ": " + mensaje);
-	}
-
-	private void enviarSMS(String mensaje, String destinatario) {
-		System.out.println("Enviando SMS a " + destinatario + ": " + mensaje);
-	}
-
-	private void enviarEmail(String mensaje, String destinatario) {
-		System.out.println("Enviando email a " + destinatario + ": " + mensaje);
-	}
+    // 2. El método principal queda limpio y sin condicionales
+    public void enviarNotificacion(String tipo, String mensaje, String destinatario) {
+        NotificationType.fromString(tipo).enviar(mensaje, destinatario);
+    }
 }
